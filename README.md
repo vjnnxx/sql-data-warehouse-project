@@ -1,6 +1,6 @@
 # Projeto de Data Warehouse e Análise de Dados
 
-Este projeto demonstra uma solução moderna de Data Warehouse utilizando SQL Server, incluindo processos de ETL, modelagem de dados e análise.
+Este projeto demonstra uma solução moderna de Data Warehouse utilizando SQL Server, incluindo processos de ETL, modelagem e análise de dados.
 
 --- 
 
