@@ -1,0 +1,146 @@
+/*
+===============================================================================
+Stored Procedure: Load Bronze Layer (Fonte -> Bronze)
+===============================================================================
+Propósito do Script:
+	Esta Stored Procedure carrega os dados para o esquema 'bronze' a partir de arquivos CSV externos, 
+	realizando as seguintes ações:
+	- Truncar as tabelas antes de carregar os dados.
+	- Utilizar o comando 'BULK INSERT' para carregar os dados dos arquivos CSV nas tabelas
+
+Parâmetros:
+	Nenhum. Esta Procedure não aceita nenhum parâmetro nem retorna valores.
+
+Exemplo de utilização.
+
+	EXEC bronze.load_bronze;
+
+===============================================================================
+*/
+
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS
+BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME;
+	BEGIN TRY
+		SET @batch_start_time = GETDATE();
+		PRINT '=============================';
+		PRINT 'Carregando camada bronze';
+		PRINT '=============================';
+
+		PRINT '-----------------------------';
+		PRINT 'Carregando tabelas CRM';
+		PRINT '-----------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT '>> Truncando tabela: bronze.crm_cust_info';
+		TRUNCATE TABLE bronze.crm_cust_info;
+
+		PRINT '>> Inserindo dados na tabela: bronze.crm_cust_info';
+		BULK INSERT bronze.crm_cust_info
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT '>> Truncando tabela: bronze.crm_prd_info';
+		TRUNCATE TABLE bronze.crm_prd_info;
+
+		PRINT '>> Inserindo dados na tabela: bronze.crm_prd_info';
+		BULK INSERT bronze.crm_prd_info
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT '>> Truncando tabela: bronze.crm_sales_details';
+		TRUNCATE TABLE bronze.crm_sales_details;
+
+		PRINT '>> Inserindo dados na tabela: bronze.crm_sales_details';
+		BULK INSERT bronze.crm_sales_details
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		PRINT '-----------------------------';
+		PRINT 'Carregando tabelas ERP';
+		PRINT '-----------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT '>> Truncando tabela: bronze.erp_cust_az12';
+		TRUNCATE TABLE bronze.erp_cust_az12;
+
+		PRINT '>> Inserindo dados na tabela: bronze.crm_sales_details';
+		BULK INSERT bronze.erp_cust_az12
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_erp\cust_az12.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT '>> Truncando tabela: bronze.erp_loc_a101';
+		TRUNCATE TABLE bronze.erp_loc_a101;
+
+		PRINT '>> Inserindo dados na tabela: bronze.erp_loc_a101';
+		BULK INSERT bronze.erp_loc_a101
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		SET @start_time = GETDATE();
+		TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+		BULK INSERT bronze.erp_px_cat_g1v2
+		FROM 'C:\Users\flori\Desktop\sql-avancado\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Duração do carga: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '>> ---------------------------------------';
+
+		SET @batch_end_time = GETDATE();
+		PRINT '=============================';
+		PRINT 'Carga da Camada Bronze completa!';
+		PRINT '   - Duração Total da Carga: ' + CAST(DATEDIFF(SECOND, @batch_start_time, @batch_end_time) AS NVARCHAR) + ' segundos.';
+		PRINT '=============================';
+	END TRY
+	BEGIN CATCH
+		PRINT '=============================';
+		PRINT 'OCORREU UM ERRO AO CARREGAR A CAMADA BRONZE';
+		PRINT 'Error Message:' + ERROR_MESSAGE();
+		PRINT 'Error Number:' + CAST(ERROR_NUMBER() AS NVARCHAR);
+		PRINT '=============================';
+	END CATCH
+END
