@@ -1,3 +1,26 @@
+/* 
+
+=============================================================================================
+Verificação de Qualidadade dos Dados
+=============================================================================================
+
+Propósito do Script:
+	Este script realiza diversas verificações de qualidade para consistência, acurácia, 
+	e padronização dos dados no esquema 'Silver'. As verificações realizadas incluem:
+	- Chaves primárias nulas ou duplicadas
+	- Espaços indevidos em campos string
+	- Padronização e consistência dos dados
+	- Ordem e alcance de datas inválidos
+	- Consistência de dados entre campos relacionados
+
+Exemplos de uso:
+	- Rodar estas verificações após carregar a camada Silver.
+	- Investigar e resolver divergências encontradas
+
+=============================================================================================
+*/
+
+
 -- ================================================
 -- Quality check: crm_cust_info
 -- ================================================
